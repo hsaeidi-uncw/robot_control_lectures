@@ -20,6 +20,7 @@ def pose_callback(data):
 		monitoring_messge = joint_name + ' is at %0.2f radians'
 		rospy.loginfo(monitoring_messge, joint_pos)
 
+
 if __name__ == '__main__':
 	# initialize the node
 	rospy.init_node('simple_pose_control', anonymous = True)
@@ -33,7 +34,7 @@ if __name__ == '__main__':
 	# define a joint trajectory variable for sending the control commands
 	pos_cmd = JointTrajectory()
 	pos_cmd_point = JointTrajectoryPoint()
-	# just a rouch and quick solution for complete the message template
+	# just a quick solution to complete the message template
 	pos_cmd.joint_names.append('elbow_joint')
 	pos_cmd.joint_names.append('shoulder_lift_joint')
 	pos_cmd.joint_names.append('shoulder_pan_joint')
@@ -41,18 +42,22 @@ if __name__ == '__main__':
 	pos_cmd.joint_names.append('wrist_2_joint')
 	pos_cmd.joint_names.append('wrist_3_joint')
 	
-	# initialize the positin command to zero
+	# initialize the position command to zero
 	for joint_no in range(6):
 		pos_cmd_point.positions.append(0.0)
-	pos_cmd_point.time_from_start = rospy.Duration(1.0)
+	# set the ideal time to destination
+	pos_cmd_point.time_from_start = rospy.Duration(1.0) # here one second 
+	# just change the value of the command for the second joint
 	pos_cmd_point.positions[1] = -math.pi/4
+	# add the trajectory point to the command
 	pos_cmd.points.append(pos_cmd_point)
-		
+	# define a message header	
 	header = Header()
 	
 	while not rospy.is_shutdown():
-		# update the header
+		# update the header with the most recent time stamp
 		header.stamp = rospy.Time.now()
+		# use the most recent header in the position command message
 		pos_cmd.header = header
 		# publish the message
 		pos_pub.publish(pos_cmd)
